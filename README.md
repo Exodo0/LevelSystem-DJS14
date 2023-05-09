@@ -1,5 +1,14 @@
 # Ranking-System
 
+Hi there! This is a simple ranking system for your discord bot. It's easy to setup and use Only works with mongoose.
+
+## Requirements
+
+- [x] mongoose (npm i mongoose)
+- [x] ascii-table (npm i ascii-table)
+- [x] canvacord (npm i canvacord)
+- [x] canvas (npm i canvas)
+
 ## How to setup
 
 1. Put all the files in the `Commands` folder into your `command` folder.
@@ -24,7 +33,7 @@
 
 - [ ] Customizable roles
 
-- [ ] Customizable Background image. (For the rank card)
+- [ ] Customizable Background image.
 
 **Note:** If you have any questions or issues, feel free to contact me on discord: `EgoIogic#5386`
 
