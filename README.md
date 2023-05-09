@@ -2,6 +2,8 @@
 
 Hi there! This is a simple ranking system for your discord bot. It's easy to setup and use Only works with mongoose.
 
+Based on the system made by: global#9451 New things were written and implemented.
+
 ## Requirements
 
 - [x] mongoose (npm i mongoose@6.8.3)
