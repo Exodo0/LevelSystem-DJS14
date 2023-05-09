@@ -42,3 +42,4 @@ Based on the system made by: global#9451 New things were written and implemented
 ## Preview
 
 ![Preview](https://cdn.discordapp.com/attachments/1102310421119123547/1105414507171422269/image.png)
+![Preview2](https://cdn.discordapp.com/attachments/1102310421119123547/1105421509184475156/image.png)
