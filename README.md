@@ -4,7 +4,7 @@ Hi there! This is a simple ranking system for your discord bot. It's easy to set
 
 ## Requirements
 
-- [x] mongoose (npm i mongoose)
+- [x] mongoose (npm i mongoose@6.8.3)
 - [x] ascii-table (npm i ascii-table)
 - [x] canvacord (npm i canvacord)
 - [x] canvas (npm i canvas)
