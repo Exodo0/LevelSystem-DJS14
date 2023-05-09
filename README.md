@@ -18,4 +18,9 @@
 
 - [x] Level up messages (Customizable channel). | Soon (Customizable message)
 
-**Note:** If you have any questions or issues, feel free to contact me on discord: `!  EgoIogic#5386`
+**Note:** If you have any questions or issues, feel free to contact me on discord: `EgoIogic#5386`
+
+## Preview
+
+![Preview](https://cdn.discordapp.com/attachments/1102310421119123547/1105414507171422269/image.png)
+![Preview2](https://cdn.discordapp.com/attachments/1102310421119123547/1105414660250947654/image.png)
