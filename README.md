@@ -16,7 +16,15 @@
 
 - [x] Rank command (Shows your rank and xp or to a mentioned user)
 
-- [x] Level up messages (Customizable channel). | Soon (Customizable message)
+- [x] Level up messages (Customizable channel).
+
+## To do
+
+- [ ] Customizable message
+
+- [ ] Customizable roles
+
+- [ ] Customizable Background image. (For the rank card)
 
 **Note:** If you have any questions or issues, feel free to contact me on discord: `EgoIogic#5386`
 
