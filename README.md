@@ -40,4 +40,3 @@ Hi there! This is a simple ranking system for your discord bot. It's easy to set
 ## Preview
 
 ![Preview](https://cdn.discordapp.com/attachments/1102310421119123547/1105414507171422269/image.png)
-![Preview2](https://cdn.discordapp.com/attachments/1102310421119123547/1105414660250947654/image.png)
