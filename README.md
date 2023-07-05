@@ -45,4 +45,4 @@ Based on the system made by: global#9451 New things were written and implemented
 
 ![Preview](https://media.discordapp.net/attachments/1105420240625614878/1126090202562187304/image.png?width=568&height=438)
 ![Preview2](https://cdn.discordapp.com/attachments/1105420240625614878/1126090202276958218/image.png)
-![Preview3] (https://cdn.discordapp.com/attachments/1103497797120040993/1126093498236538910/rank.png)
+![Preview3](https://cdn.discordapp.com/attachments/1103497797120040993/1126093498236538910/rank.png)
