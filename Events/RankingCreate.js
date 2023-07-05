@@ -1,12 +1,20 @@
-const { EmbedBuilder, Client } = require("discord.js");
+const {
+  EmbedBuilder,
+  Client,
+  ChatInputCommandInteraction,
+} = require("discord.js");
 const User = require("../../Schemas/Ranking/RankingSchema");
 const ChannelDB = require("../../Schemas/Ranking/RankingChannelSchema");
-
 const cooldown = new Set();
 
 module.exports = {
   name: "messageCreate",
+
   async execute(message, client) {
+    /**
+     * @param { Client} client
+     */
+
     const guildId = message.guild.id;
     const userId = message.author.id;
 
@@ -16,6 +24,13 @@ module.exports = {
     let user;
 
     try {
+      const channelDB = await ChannelDB.findOne({ guild: guildId });
+
+      if (!channelDB || !channelDB.status) {
+        // The leveling system is disabled, do not record or send level-up messages
+        return;
+      }
+
       const xpAmount = Math.floor(Math.random() * (25 - 15 + 1) + 15);
 
       user = await User.findOneAndUpdate(
@@ -38,22 +53,23 @@ module.exports = {
         xp = 0;
 
         let notificationChannel = null;
-        const channelDB = await ChannelDB.findOne({ guild: message.guild.id });
+
         if (channelDB) {
           try {
             notificationChannel = await client.channels.fetch(
-              channelDB.channel
+              channelDB.notificationChannel
             );
           } catch (err) {
             console.log(err);
           }
         }
+
         if (!notificationChannel) {
           notificationChannel = message.channel;
         }
 
         const embed = new EmbedBuilder()
-          .setTitle("🎉 Congratulations 🎉")
+          .setTitle("🎉 Congratulations! 🎉")
           .setThumbnail(message.author.avatarURL({ dynamic: true }))
           .addFields(
             {
@@ -63,11 +79,11 @@ module.exports = {
             },
             { name: "Level:", value: `${level}`, inline: true },
             {
-              name: "Check the leaderboard using:",
-              value: `\`/rank leadearboard\``,
+              name: "Check the global leaderboard using:",
+              value: "`/ranking leaderboard`",
             }
           )
-          .setColor(user.hexAccentColor || "Random");
+          .setColor("Aqua");
 
         notificationChannel.send({ embeds: [embed] });
 
@@ -82,8 +98,8 @@ module.exports = {
           }
         );
       }
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.log(error);
     }
 
     cooldown.add(message.author.id);

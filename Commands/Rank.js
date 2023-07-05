@@ -6,70 +6,183 @@ const {
   PermissionFlagsBits,
   ChatInputCommandInteraction,
 } = require("discord.js");
+const AsciiTable = require("ascii-table");
+const table = new AsciiTable().setHeading("#", "User", "Level", "XP");
 const { Rank } = require("canvacord");
 const User = require("../../Schemas/Ranking/RankingSchema");
 const ChannelDB = require("../../Schemas/Ranking/RankingChannelSchema");
-const AsciiTable = require("ascii-table");
-const table = new AsciiTable().setHeading("#", "User", "Level", "XP");
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("rank")
-    .setDescription("⚙ Configure the ranking system o Check your rank")
+    .setName("ranking")
+    .setDescription("🏆 Configura los Ranking o Revisa los niveles.")
     .addSubcommand((subcommand) =>
       subcommand
         .setName("setup")
-        .setDescription("🛠 Let's start configuring the System.")
+        .setDescription(
+          "🛠 Comencemos a configurar nuestro sistema de rankings."
+        )
         .addChannelOption((option) =>
           option
             .setName("channel")
-            .setDescription(
-              "📌 The channel where the notifications will be sent."
-            )
+            .setDescription("🗒 Donde enviare los avisos de aumento de nivel?")
             .addChannelTypes(ChannelType.GuildText)
             .setRequired(true)
+        )
+        .addAttachmentOption((option) =>
+          option
+            .setName("image")
+            .setDescription("🖼 Agrega tu imagen personalizada al background")
+            .setRequired(false)
         )
     )
     .addSubcommand((subcommand) =>
       subcommand
-        .setName("me")
-        .setDescription("📊 Check your rank o another user.")
+        .setName("status")
+        .setDescription(
+          "🛠 Configura si quieres desactivar o activar el sistema de niveles."
+        )
+        .addStringOption((option) =>
+          option
+            .setName("turn")
+            .setDescription("⚙️ Elige una opcion.")
+            .setRequired(true)
+            .addChoices(
+              { name: "on", value: "activate" },
+              { name: "off", value: "disabled" }
+            )
+        )
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
+        .setName("view")
+        .setDescription("🔎 Revisa el Nivel de Algun Usuario o El tuyo")
         .addUserOption((option) =>
           option
             .setName("user")
-            .setDescription("👤 The user you want to check.")
+            .setDescription("👤 A que Usuario Quieres Revisar?")
             .setRequired(false)
         )
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName("leaderboard")
-        .setDescription("📊 Check the leaderboard Guild.")
+        .setDescription("📈 Revisa el Ranking Global del Servidor.")
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName("delete")
-        .setDescription(
-          "🗑 Delete the ranking system of the Guild. Just Channel notifications"
-        )
+        .setDescription("🗑 Borra el Sistema de Rankings")
     ),
+
   /**
-   * @param {ChatInputCommandInteraction} interaction
-   * @param {Client} client
+   * @param { Client } client
+   * @param { ChatInputCommandInteraction} interaction
    */
 
   async execute(interaction, client) {
     const { options, guild } = interaction;
 
     switch (options.getSubcommand()) {
-      case "me":
+      case "setup":
+        const channel = options.getChannel("channel");
+        const image = options.getAttachment("image");
+
+        if (
+          !interaction.member.permissions.has(PermissionFlagsBits.ManageGuild)
+        )
+          return interaction.reply({
+            embeds: [
+              new EmbedBuilder()
+                .setTitle("⭕️ Tenemos un Problema.")
+                .setColor("Red")
+                .setDescription(
+                  `Al parecer no cuentas con los permisos necesarios: ${PermissionFlagsBits.ManageGuild} Contacta a un Administrador para que te Asesore.`
+                )
+                .setThumbnail(guild.iconURL({ dynamic: true })),
+            ],
+          });
+
+        const channelDB = await ChannelDB.findOne({ guild: guild.id });
+
+        if (channelDB) {
+          const Exist = new EmbedBuilder()
+            .setTitle("⭕️ Tenemos un Problema.")
+            .setColor("Red")
+            .setFields(
+              {
+                name: "💠 El canal ya fue previamente configurado.",
+                value: `Se encuentra en: <#${channelDB.channel}>`,
+              },
+              {
+                name: "💠 Si quieres cambiarlo tendrás que eliminarlo y volver a configurarlo usando:",
+                value: "`/ranking delete`",
+              }
+            );
+          return interaction.reply({
+            embeds: [Exist],
+            ephemeral: true,
+          });
+        }
+
+        const completedEmbed = new EmbedBuilder()
+          .setColor("Green")
+          .setImage(
+            image.proxyURL ||
+              "https://wallpapertag.com/wallpaper/full/e/c/6/477550-most-popular-hubble-ultra-deep-field-wallpaper-1920x1200.jpg"
+          )
+          .setFields(
+            {
+              name: "💠 Ranking Announcement Channel Successfully Configured",
+              value: `Moderator: <@${interaction.member.id}>`,
+            },
+            {
+              name: "Configured Channel:",
+              value: `<#${channel.id}>`,
+              inline: true,
+            },
+            {
+              name: "If you added a background image",
+              value:
+                "You will see it in this embed, or you will see the default image.",
+            }
+          )
+          .setTimestamp();
+
+        interaction.reply({
+          embeds: [completedEmbed],
+        });
+
+        const newChannelDB = new ChannelDB({
+          guild: guild.id,
+          channel: channel.id,
+          image: image?.proxyURL || "default-image-url",
+        });
+
+        const savedChannelDB = await newChannelDB.save();
+
+        if (!savedChannelDB) {
+          return interaction.reply({
+            embeds: [
+              new EmbedBuilder()
+                .setTitle("⭕️ Tenemos un Problema.")
+                .setColor("Red")
+                .setDescription(
+                  `Al parecer no pude guardar correctamente el canal. Fue notificado al desarrollador. Por favor, vuelve a intentarlo en los próximos 10 minutos.`
+                )
+                .setThumbnail(guild.iconURL({ dynamic: true })),
+            ],
+          });
+        }
+
+        break;
+
+      case "view":
         const member = options.getMember("user") || interaction.member;
-
+        let channelDBS;
         let user;
-
         const guildId = member.guild.id;
         const userId = member.user.id;
-
         user = await User.findOne({ guildId, userId });
 
         if (!user) {
@@ -79,20 +192,22 @@ module.exports = {
           };
         }
 
+        channelDBS = await ChannelDB.findOne({ guild: guildId });
+
         const rank = new Rank()
           .setAvatar(member.user.displayAvatarURL())
           .setCurrentXP(user.xp)
           .setLevel(user.level)
           .setRank(0, 0, false)
           .setRequiredXP(user.level * 100)
-          .setStatus(member.presence.status)
+          .setStatus("online")
           .setProgressBar("#75ff7e", "COLOR")
           .setUsername(member.user.username)
           .setBackground(
             "IMAGE",
-            "https://wallpapertag.com/wallpaper/full/e/c/6/477550-most-popular-hubble-ultra-deep-field-wallpaper-1920x1200.jpg" // Change to your background image just URL
-          )
-          .setDiscriminator(member.user.discriminator);
+            channelDBS?.image ||
+              "https://wallpapertag.com/wallpaper/full/e/c/6/477550-most-popular-hubble-ultra-deep-field-wallpaper-1920x1200.jpg"
+          );
 
         rank.build().then((data) => {
           interaction.reply({
@@ -100,6 +215,7 @@ module.exports = {
           });
         });
         break;
+
       case "leaderboard":
         const users = await User.find({ guildId: guild.id })
           .sort({ level: -1 })
@@ -108,6 +224,10 @@ module.exports = {
         const startIndex = 0;
 
         if (users.length) {
+          // Generar la tabla de clasificación
+          const table = new AsciiTable("Ranking");
+          table.setHeading("Posición", "Usuario", "Nivel", "XP");
+
           users.forEach((user, position) => {
             const member = interaction.guild.members.cache.get(user.userId);
             table.addRow(
@@ -119,90 +239,30 @@ module.exports = {
           });
 
           const embed = new EmbedBuilder()
-            .setTitle(`📊 Leaderboard from: ${guild.name}`)
+            .setTitle(`📊 Leaderboard del Servidor: ${guild.name}`)
             .setColor("Random")
             .setThumbnail(guild.iconURL({ dynamic: true }))
             .setDescription("```" + table.toString() + "```")
+            .setFooter(
+              { text: `Pedido por: ${interaction.user.tag}` },
+              { iconURL: interaction.user.displayAvatarURL({ dynamic: true }) }
+            );
+
+          interaction.reply({ embeds: [embed] });
+        } else {
+          // No hay usuarios registrados en la tabla de clasificación
+          const noRankingEmbed = new EmbedBuilder()
+            .setTitle("📊 Leaderboard")
+            .setColor("Random")
+            .setDescription(
+              "No hay una tabla de clasificación disponible actualmente."
+            )
             .setFooter(
               { text: `Requested by ${interaction.user.tag}` },
               { iconURL: interaction.user.displayAvatarURL({ dynamic: true }) }
             );
 
-          interaction.reply({ embeds: [embed] });
-        }
-        break;
-      case "setup":
-        const channel = options.getChannel("channel");
-
-        if (
-          !interaction.member.permissions.has(PermissionFlagsBits.ManageGuild)
-        )
-          return interaction.reply({
-            content: "You don't have permissions to use this command",
-            ephemeral: true,
-          });
-
-        const channelDB = await ChannelDB.findOne(
-          { guild: guild.id },
-          {
-            channel: channel.id,
-          }
-        );
-
-        if (channelDB) {
-          const error = new EmbedBuilder()
-            .setThumbnail(client.user.displayAvatarURL())
-            .setColor("Red")
-            .addFields(
-              {
-                name: "🔹 The Ranking channel is already set up",
-                value: `It's set up in: <#${channelDB.channel}>`,
-              },
-              {
-                name: "🔹 If you want to change it, use:",
-                value: `\`/rank delete\``,
-              }
-            );
-
-          return interaction.reply({
-            embeds: [error],
-            ephemeral: true,
-          });
-        }
-
-        const embed2 = new EmbedBuilder()
-          .setColor("Random")
-          .addFields(
-            {
-              name: "🔹 You've just set up the Ranking channel",
-              value: `Moderator: <@${interaction.member.id}>`,
-            },
-            {
-              name: "Channel",
-              value: `<#${channel.id}>`,
-              inline: true,
-            },
-            {
-              name: `Made by:`,
-              value: `**<@1049620709569216543>**`,
-              inline: true,
-            }
-          )
-          .setTimestamp();
-
-        interaction.reply({ embeds: [embed2] });
-
-        const newChannelDB = new ChannelDB({
-            guild: guild.id,
-            channel: channel.id,
-          }),
-          savedChannelDB = await newChannelDB.save();
-
-        if (!savedChannelDB) {
-          return interaction.reply({
-            content: "An error occurred while saving the Ranking channel",
-            ephemeral: true,
-          });
+          interaction.reply({ embeds: [noRankingEmbed] });
         }
         break;
       case "delete":
@@ -210,8 +270,15 @@ module.exports = {
           !interaction.member.permissions.has(PermissionFlagsBits.ManageGuild)
         )
           return interaction.reply({
-            content: "You don't have permissions to use this command",
-            ephemeral: true,
+            embeds: [
+              new EmbedBuilder()
+                .setTitle("⭕️ Tenemos un Problema.")
+                .setColor("Red")
+                .setDescription(
+                  `Al parecer no cuentas con los permisos necesarios: ${PermissionFlagsBits.ManageGuild} Contacta a un Administrador para que te Asesore.`
+                )
+                .setThumbnail(guild.iconURL({ dynamic: true })),
+            ],
           });
 
         const channelDB2 = await ChannelDB.findOne(
@@ -221,27 +288,78 @@ module.exports = {
 
         if (!channelDB2) {
           return interaction.reply({
-            content: "There's no channel configured",
-            ephemeral: true,
+            embeds: [
+              new EmbedBuilder()
+                .setTitle("⭕️ Tenemos un Problema.")
+                .setColor("Red")
+                .setDescription(
+                  `Al parecer este servidor aun no configura ningun canal. Contacta a un administrador para que lo solucione.`
+                )
+                .setThumbnail(guild.iconURL({ dynamic: true })),
+            ],
           });
         }
 
         const deletedChannelDB = await ChannelDB.findOneAndDelete({
           guild: guild.id,
-          channel: channelDB2.channel,
         });
 
         if (!deletedChannelDB) {
           return interaction.reply({
-            content: "An error occurred while deleting the Ranking channel",
-            ephemeral: true,
+            embeds: [
+              new EmbedBuilder()
+                .setTitle("⭕️ Tenemos un Problema.")
+                .setColor("Red")
+                .setDescription(
+                  `Obtuve un error al intentar borrar el canal configurado. Intentalo en los proxmios 10 minutos nuestro desarrollador estara trabajando para solucionarlo`
+                )
+                .setThumbnail(guild.iconURL({ dynamic: true })),
+            ],
           });
         }
 
         interaction.reply({
-          content: `The Ranking channel has been deleted`,
+          embeds: [
+            new EmbedBuilder()
+              .setTitle("💠 Hecho Borrado con exito la configuracion.")
+              .setColor("Aqua")
+              .setFields({
+                name: "💠 Borrado por el moderador:",
+                value: `<@${interaction.member.id}>`,
+              })
+              .setThumbnail(guild.iconURL({ dynamic: true })),
+          ],
           ephemeral: true,
         });
+        break;
+      case "status":
+        const status = interaction.options.getString("turn");
+        const channelDB3 = await ChannelDB.findOne({ guild: guild.id });
+
+        if (status === "on") {
+          channelDB3.status = true;
+        } else if (status === "off") {
+          channelDB3.status = false;
+        }
+
+        await channelDB3.save();
+
+        const statusText = channelDB3.status ? "on" : "off";
+
+        const embed = new EmbedBuilder()
+          .setTitle("💠 System Configuration Complete")
+          .setThumbnail(guild.iconURL({ dynamic: true }))
+          .setColor("Random")
+          .setFields(
+            { name: "Moderator:", value: `${interaction.user.username}` },
+            {
+              name: "The leveling system has been configured as:",
+              value: `Leveling: ${statusText}`,
+            }
+          )
+          .setTimestamp();
+
+        interaction.reply({ embeds: [embed], ephemeral: true });
         break;
     }
   },
