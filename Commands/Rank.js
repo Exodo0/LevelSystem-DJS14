@@ -336,7 +336,7 @@ module.exports = {
           channelDB3.status = false;
         }
 
-        await channelDB3.save(); // Guardar los cambios en la base de datos
+        await channelDB3.save(); //Save new changes in database
 
         const statusText = channelDB3.status ? "on" : "off";
 
