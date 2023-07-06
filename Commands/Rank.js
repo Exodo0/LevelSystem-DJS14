@@ -15,24 +15,22 @@ const ChannelDB = require("../../Schemas/Ranking/RankingChannelSchema");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("ranking")
-    .setDescription("🏆 Configura los Ranking o Revisa los niveles.")
+    .setDescription("🏆 Configure Rankings or Check Levels.")
     .addSubcommand((subcommand) =>
       subcommand
         .setName("setup")
-        .setDescription(
-          "🛠 Comencemos a configurar nuestro sistema de rankings."
-        )
+        .setDescription("🛠 Start configuring our ranking system.")
         .addChannelOption((option) =>
           option
             .setName("channel")
-            .setDescription("🗒 Donde enviare los avisos de aumento de nivel?")
+            .setDescription("🗒 Where should I send the level up notifications?")
             .addChannelTypes(ChannelType.GuildText)
             .setRequired(true)
         )
         .addAttachmentOption((option) =>
           option
             .setName("image")
-            .setDescription("🖼 Agrega tu imagen personalizada al background")
+            .setDescription("🖼 Add your custom image as the background")
             .setRequired(false)
         )
     )
@@ -40,39 +38,37 @@ module.exports = {
       subcommand
         .setName("status")
         .setDescription(
-          "🛠 Configura si quieres desactivar o activar el sistema de niveles."
+          "🛠 Configure whether to enable or disable the leveling system."
         )
         .addStringOption((option) =>
           option
             .setName("turn")
-            .setDescription("⚙️ Elige una opcion.")
+            .setDescription("⚙️ Choose an option.")
             .setRequired(true)
             .addChoices(
-              { name: "on", value: "activate" },
-              { name: "off", value: "disabled" }
+              { name: "on", value: "on" },
+              { name: "off", value: "off" }
             )
         )
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName("view")
-        .setDescription("🔎 Revisa el Nivel de Algun Usuario o El tuyo")
+        .setDescription("🔎 Check the Level of a User or Your Own")
         .addUserOption((option) =>
           option
             .setName("user")
-            .setDescription("👤 A que Usuario Quieres Revisar?")
+            .setDescription("👤 Which User's Level Do You Want to Check?")
             .setRequired(false)
         )
     )
     .addSubcommand((subcommand) =>
       subcommand
         .setName("leaderboard")
-        .setDescription("📈 Revisa el Ranking Global del Servidor.")
+        .setDescription("📈 Check the Global Server Leaderboard.")
     )
     .addSubcommand((subcommand) =>
-      subcommand
-        .setName("delete")
-        .setDescription("🗑 Borra el Sistema de Rankings")
+      subcommand.setName("delete").setDescription("🗑 Delete the Ranking System")
     ),
 
   /**
@@ -94,10 +90,10 @@ module.exports = {
           return interaction.reply({
             embeds: [
               new EmbedBuilder()
-                .setTitle("⭕️ Tenemos un Problema.")
+                .setTitle("⭕️ We Have a Problem.")
                 .setColor("Red")
                 .setDescription(
-                  `Al parecer no cuentas con los permisos necesarios: ${PermissionFlagsBits.ManageGuild} Contacta a un Administrador para que te Asesore.`
+                  `It seems you don't have the necessary permissions: ${PermissionFlagsBits.ManageGuild} Contact an Administrator for assistance.`
                 )
                 .setThumbnail(guild.iconURL({ dynamic: true })),
             ],
@@ -107,15 +103,15 @@ module.exports = {
 
         if (channelDB) {
           const Exist = new EmbedBuilder()
-            .setTitle("⭕️ Tenemos un Problema.")
+            .setTitle("⭕️ We Have a Problem.")
             .setColor("Red")
             .setFields(
               {
-                name: "💠 El canal ya fue previamente configurado.",
-                value: `Se encuentra en: <#${channelDB.channel}>`,
+                name: "💠 The channel has already been previously configured.",
+                value: `It is located in: <#${channelDB.channel}>`,
               },
               {
-                name: "💠 Si quieres cambiarlo tendrás que eliminarlo y volver a configurarlo usando:",
+                name: "💠 If you want to change it, you will have to delete it and reconfigure it using:",
                 value: "`/ranking delete`",
               }
             );
@@ -128,7 +124,7 @@ module.exports = {
         const completedEmbed = new EmbedBuilder()
           .setColor("Green")
           .setImage(
-            image.proxyURL ||
+            image ||
               "https://wallpapertag.com/wallpaper/full/e/c/6/477550-most-popular-hubble-ultra-deep-field-wallpaper-1920x1200.jpg"
           )
           .setFields(
@@ -165,10 +161,10 @@ module.exports = {
           return interaction.reply({
             embeds: [
               new EmbedBuilder()
-                .setTitle("⭕️ Tenemos un Problema.")
+                .setTitle("⭕️ We Have a Problem.")
                 .setColor("Red")
                 .setDescription(
-                  `Al parecer no pude guardar correctamente el canal. Fue notificado al desarrollador. Por favor, vuelve a intentarlo en los próximos 10 minutos.`
+                  `It seems I couldn't save the channel correctly. The developer has been notified. Please try again in the next 10 minutes.`
                 )
                 .setThumbnail(guild.iconURL({ dynamic: true })),
             ],
@@ -224,9 +220,9 @@ module.exports = {
         const startIndex = 0;
 
         if (users.length) {
-          // Generar la tabla de clasificación
+          // Generate the leaderboard table
           const table = new AsciiTable("Ranking");
-          table.setHeading("Posición", "Usuario", "Nivel", "XP");
+          table.setHeading("Position", "User", "Level", "XP");
 
           users.forEach((user, position) => {
             const member = interaction.guild.members.cache.get(user.userId);
@@ -239,26 +235,24 @@ module.exports = {
           });
 
           const embed = new EmbedBuilder()
-            .setTitle(`📊 Leaderboard del Servidor: ${guild.name}`)
+            .setTitle(`📊 Server Leaderboard: ${guild.name}`)
             .setColor("Random")
             .setThumbnail(guild.iconURL({ dynamic: true }))
             .setDescription("```" + table.toString() + "```")
             .setFooter(
-              { text: `Pedido por: ${interaction.user.tag}` },
+              { text: `Requested by: ${interaction.user.tag}` },
               { iconURL: interaction.user.displayAvatarURL({ dynamic: true }) }
             );
 
           interaction.reply({ embeds: [embed] });
         } else {
-          // No hay usuarios registrados en la tabla de clasificación
+          // There are no registered users in the leaderboard
           const noRankingEmbed = new EmbedBuilder()
             .setTitle("📊 Leaderboard")
             .setColor("Random")
-            .setDescription(
-              "No hay una tabla de clasificación disponible actualmente."
-            )
+            .setDescription("There is currently no leaderboard available.")
             .setFooter(
-              { text: `Requested by ${interaction.user.tag}` },
+              { text: `Requested by: ${interaction.user.tag}` },
               { iconURL: interaction.user.displayAvatarURL({ dynamic: true }) }
             );
 
@@ -272,10 +266,10 @@ module.exports = {
           return interaction.reply({
             embeds: [
               new EmbedBuilder()
-                .setTitle("⭕️ Tenemos un Problema.")
+                .setTitle("⭕️ We Have a Problem.")
                 .setColor("Red")
                 .setDescription(
-                  `Al parecer no cuentas con los permisos necesarios: ${PermissionFlagsBits.ManageGuild} Contacta a un Administrador para que te Asesore.`
+                  `It seems you don't have the necessary permissions: ${PermissionFlagsBits.ManageGuild}. Contact an administrator for assistance.`
                 )
                 .setThumbnail(guild.iconURL({ dynamic: true })),
             ],
@@ -290,10 +284,10 @@ module.exports = {
           return interaction.reply({
             embeds: [
               new EmbedBuilder()
-                .setTitle("⭕️ Tenemos un Problema.")
+                .setTitle("⭕️ We Have a Problem.")
                 .setColor("Red")
                 .setDescription(
-                  `Al parecer este servidor aun no configura ningun canal. Contacta a un administrador para que lo solucione.`
+                  `It seems this server has not configured any channel yet. Contact an administrator to resolve this.`
                 )
                 .setThumbnail(guild.iconURL({ dynamic: true })),
             ],
@@ -301,17 +295,17 @@ module.exports = {
         }
 
         const deletedChannelDB = await ChannelDB.findOneAndDelete({
-          guild: guild.id,
+          channel: interaction.channel.id,
         });
 
         if (!deletedChannelDB) {
           return interaction.reply({
             embeds: [
               new EmbedBuilder()
-                .setTitle("⭕️ Tenemos un Problema.")
+                .setTitle("⭕️ We Have a Problem.")
                 .setColor("Red")
                 .setDescription(
-                  `Obtuve un error al intentar borrar el canal configurado. Intentalo en los proxmios 10 minutos nuestro desarrollador estara trabajando para solucionarlo`
+                  `I encountered an error while trying to delete the configured channel. Please try again in the next 10 minutes as our developer will be working to resolve it.`
                 )
                 .setThumbnail(guild.iconURL({ dynamic: true })),
             ],
@@ -321,10 +315,10 @@ module.exports = {
         interaction.reply({
           embeds: [
             new EmbedBuilder()
-              .setTitle("💠 Hecho Borrado con exito la configuracion.")
+              .setTitle("💠 Configuration Successfully Deleted.")
               .setColor("Aqua")
               .setFields({
-                name: "💠 Borrado por el moderador:",
+                name: "💠 Deleted by moderator:",
                 value: `<@${interaction.member.id}>`,
               })
               .setThumbnail(guild.iconURL({ dynamic: true })),
@@ -342,7 +336,7 @@ module.exports = {
           channelDB3.status = false;
         }
 
-        await channelDB3.save();
+        await channelDB3.save(); // Guardar los cambios en la base de datos
 
         const statusText = channelDB3.status ? "on" : "off";
 
