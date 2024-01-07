@@ -7,7 +7,6 @@ Based on the system made by: global#9451 New things were written and implemented
 ## Requirements
 
 - [x] mongoose (npm i mongoose)
-- [x] ascii-table (npm i ascii-table)
 - [x] canvacord (npm i canvacord)
 - [x] canvas (npm i canvas)
 
@@ -21,6 +20,8 @@ Based on the system made by: global#9451 New things were written and implemented
 
 4. Important: Add `GuildPresences` and `MessageContent` intent to your client intents. (This is required for the bot to work)
 
+5.- Please change your path in commands and events in case you have a different path.
+
 ## Features
 
 - [x] Leaderboard command (Shows the top 10 users with the most xp)
@@ -30,14 +31,6 @@ Based on the system made by: global#9451 New things were written and implemented
 - [x] Level up messages (Customizable channel).
 
 - [x] Customizable Background image.
-
-- [x] Setup leveling (Turn: on, or off)
-
-## To do
-
-- [ ] Customizable message
-
-- [ ] Customizable roles
 
 **Note:** If you have any questions or issues, feel free to contact me on discord: `EgoIogic#5386 Please report all bugs on this repository`
 
