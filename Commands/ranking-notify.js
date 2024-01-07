@@ -34,12 +34,9 @@ module.exports = {
       if (sub === "set") {
         const channel = interaction.options.getChannel("channel");
         const guildId = interaction.guild.id;
-
-        // Verificar si ya hay una configuración para el canal en la base de datos
         const existingConfig = await NotifySchema.findOne({ GuildId: guildId });
 
         if (existingConfig) {
-          // Actualizar la configuración existente
           existingConfig.ChannelId = channel.id;
           await existingConfig.save();
 
@@ -51,7 +48,6 @@ module.exports = {
             ],
           });
         } else {
-          // Crear una nueva configuración si no existe
           const newConfig = new NotifySchema({
             GuildId: guildId,
             ChannelId: channel.id,
@@ -70,7 +66,6 @@ module.exports = {
       } else if (sub === "remove") {
         const guildId = interaction.guild.id;
 
-        // Buscar y actualizar el ChannelId a null
         const updatedConfig = await NotifySchema.findOneAndUpdate(
           { GuildId: guildId },
           { ChannelId: null },
