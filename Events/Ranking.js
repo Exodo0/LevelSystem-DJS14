@@ -47,6 +47,7 @@ module.exports = {
         },
         {
           $inc: { Xp: xpAmount },
+          $setOnInsert: { Level: 0 },
         },
         { upsert: true, new: true }
       );
