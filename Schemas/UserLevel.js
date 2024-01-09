@@ -8,6 +8,7 @@ const UserLevelSchema = new mongoose.Schema({
   Background: String,
   BarColor: String,
   BorderColor: String,
+  Blur: Number,
 });
 
 module.exports = mongoose.model("UserLevel", UserLevelSchema);
