@@ -41,11 +41,12 @@ module.exports = {
       const background = user?.Background || null;
       const barColor = user?.BarColor || null;
       const borderColor = user?.BorderColor || null;
-
+      const backgroundBlur = user?.Blur || null;
       const buffer = await profileImage(targetMember.id, {
         borderColor: borderColor,
         presenceStatus: targetMember.presence.status,
         customBackground: background,
+        moreBackgroundBlur: backgroundBlur,
         rankData: {
           currentXp: user.Xp,
           requiredXp: user.Level * 100,
