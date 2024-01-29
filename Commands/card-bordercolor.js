@@ -17,7 +17,7 @@ module.exports = {
         .setRequired(true)
     ),
 
-  async execute(interaction, client) {
+   async execute(interaction, client) {
     try {
       await interaction.deferReply();
       const color = interaction.options.getString("color");
@@ -70,12 +70,13 @@ module.exports = {
       });
 
       await interaction.followUp({
-        embeds: [
-          new EmbedBuilder()
-            .setColor("#087996")
-            .setDescription("Here's a preview of your new border color:")
-            .setImage("attachment://profile.png"),
-        ],
+        content: "Border color changed successfully.",
+        // embeds: [
+        //   new EmbedBuilder()
+        //     .setColor("#087996")
+        //     .setDescription("Here's a preview of your new border color:")
+        //     .setImage("attachment://profile.png"),
+        // ],
         files: [new AttachmentBuilder(buffer, { name: "profile.png" })],
       });
 
@@ -94,3 +95,4 @@ module.exports = {
     }
   },
 };
+
