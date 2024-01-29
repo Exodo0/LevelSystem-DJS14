@@ -17,7 +17,7 @@ module.exports = {
         .setRequired(true)
     ),
 
-  async execute(interaction, client) {
+    async execute(interaction, client) {
     try {
       await interaction.deferReply();
       const color = interaction.options.getString("color");
@@ -63,20 +63,21 @@ module.exports = {
         borderColor: borderColor,
         moreBackgroundBlur: backgroundBlur,
         rankData: {
-          currentXp: user.Xp,
-          requiredXp: user.Level * 100,
-          level: user.Level,
+          currentXp: user.Xp || 0,
+          requiredXp: user.Level * 100 || 0,
+          level: user.Level || 0,
           barColor: color,
         },
       });
 
       await interaction.followUp({
-        embeds: [
-          new EmbedBuilder()
-            .setColor("#087996")
-            .setDescription("Here's a preview of your new bar color:")
-            .setImage("attachment://profile.png"),
-        ],
+        content: "Here's a preview of your new bar color",
+        // embeds: [
+        //   new EmbedBuilder()
+        //     .setColor("#087996")
+        //     .setDescription("Here's a preview of your new bar color:")
+        //     .setImage("attachment://profile.png"),
+        // ],
         files: [new AttachmentBuilder(buffer, { name: "profile.png" })],
       });
 
@@ -95,3 +96,4 @@ module.exports = {
     }
   },
 };
+
