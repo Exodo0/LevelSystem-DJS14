@@ -17,7 +17,7 @@ module.exports = {
         .setRequired(true)
     ),
 
-  async execute(interaction, client) {
+    async execute(interaction, client) {
     try {
       await interaction.deferReply();
       const image = interaction.options.getAttachment("image");
@@ -62,13 +62,13 @@ module.exports = {
         name: "profile.png",
       });
       await interaction.followUp({
-        embeds: [
-          new EmbedBuilder()
-            .setColor("Green")
-            .setDescription("Background Image changed successfully.")
-            .setImage("attachment://profile.png"),
-        ],
-        ephemeral: true,
+        content: "Background Image changed successfully.",
+        // embeds: [
+        //   new EmbedBuilder()
+        //     .setColor("Green")
+        //     .setDescription("Background Image changed successfully.")
+        //     .setImage("attachment://profile.png"),
+        // ],
         files: [Attachment],
       });
     } catch (err) {
