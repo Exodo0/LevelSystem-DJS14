@@ -42,6 +42,7 @@ module.exports = {
       const barColor = user?.BarColor || null;
       const borderColor = user?.BorderColor || null;
       const backgroundBlur = user?.Blur || null;
+
       const buffer = await profileImage(targetMember.id, {
         borderColor: borderColor,
         presenceStatus: targetMember.presence.status,
@@ -49,8 +50,8 @@ module.exports = {
         moreBackgroundBlur: backgroundBlur,
         rankData: {
           currentXp: user.Xp || 0,
-          requiredXp: user.Level * 100 || 0,
-          level: user.Level || 0,
+          requiredXp: user.Level * 100 || 100,
+          level: user.Level || 1,
           barColor: barColor || "#087996",
         },
       });
@@ -59,14 +60,14 @@ module.exports = {
         name: "profile.png",
       });
 
-      const embed = new EmbedBuilder()
-        .setColor("#087996")
-        .setImage("attachment://profile.png")
-        .setTimestamp()
-        .setFooter({ text: `Requested by: ${interaction.user.username}` });
+      // const embed = new EmbedBuilder()
+      //   .setColor("#087996")
+      //   .setImage("attachment://profile.png")
+      //   .setTimestamp()
+      //   .setFooter({ text: `Requested by: ${interaction.user.username}` });
 
       await interaction.followUp({
-        embeds: [embed],
+        // embeds: [embed],
         files: [attachment],
       });
     } catch (error) {
@@ -75,3 +76,4 @@ module.exports = {
     }
   },
 };
+
