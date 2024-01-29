@@ -18,7 +18,7 @@ module.exports = {
         .setMaxValue(10)
         .setRequired(true)
     ),
-  async execute(interaction, client) {
+   async execute(interaction, client) {
     try {
       await interaction.deferReply();
 
@@ -70,14 +70,15 @@ module.exports = {
         name: "profile.png",
       });
 
-      const embed = new EmbedBuilder()
-        .setDescription("Here's a preview of your new blur value:")
-        .setImage("attachment://profile.png")
-        .setColor("Aqua")
-        .setTimestamp();
+      // const embed = new EmbedBuilder()
+      //   .setDescription("Here's a preview of your new blur value:")
+      //   .setImage("attachment://profile.png")
+      //   .setColor("Aqua")
+      //   .setTimestamp();
 
       await interaction.followUp({
-        embeds: [embed],
+        // embeds: [embed],
+        content: "Here's a preview of your new blur value",
         files: [attachment],
       });
     } catch (error) {
@@ -85,3 +86,4 @@ module.exports = {
     }
   },
 };
+
