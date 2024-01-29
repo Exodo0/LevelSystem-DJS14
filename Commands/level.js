@@ -48,10 +48,10 @@ module.exports = {
         customBackground: background,
         moreBackgroundBlur: backgroundBlur,
         rankData: {
-          currentXp: user.Xp,
-          requiredXp: user.Level * 100,
-          level: user.Level,
-          barColor: barColor,
+          currentXp: user.Xp || 0,
+          requiredXp: user.Level * 100 || 0,
+          level: user.Level || 0,
+          barColor: barColor || "#087996",
         },
       });
 
