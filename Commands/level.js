@@ -43,9 +43,14 @@ module.exports = {
       const borderColor = user?.BorderColor || null;
       const backgroundBlur = user?.Blur || null;
 
-      const buffer = await profileImage(targetMember.id, {
+   const presenceStatus =
+        targetMember.presence && targetMember.presence.status
+          ? targetMember.presence.status
+          : "offline";
+      
+        const buffer = await profileImage(targetMember.id, {
         borderColor: borderColor,
-        presenceStatus: targetMember.presence.status,
+        presenceStatus: presenceStatus,
         customBackground: background,
         moreBackgroundBlur: backgroundBlur,
         rankData: {
