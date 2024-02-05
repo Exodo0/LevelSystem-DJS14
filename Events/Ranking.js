@@ -6,16 +6,17 @@ const cooldown = new Set();
 
 module.exports = {
   name: "messageCreate",
-  description: "Ranking system",
+  description: "📂 Add Level and Notify",
 
   async execute(message, client) {
     const guildId = message.guild.id;
     const userId = message.author.id;
 
-    if (message.author.bot || !message.guild || cooldown.has(userId)) return;
+    if (cooldown.has(userId)) return;
 
     let user;
     let rankingChannel;
+    if (message.author.bot) return;
 
     try {
       rankingChannel = await Notify.findOne(
@@ -27,19 +28,18 @@ module.exports = {
         const newNotify = new Notify({
           GuildId: guildId,
           ChannelId: null,
-          Status: true,
+          Status: false,
         });
-
         rankingChannel = await newNotify.save();
       }
-
       if (!rankingChannel.Status) {
         rankingChannel.Status = true;
         await rankingChannel.save();
         return;
       }
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      console.error(error);
+      return;
     }
 
     const xpAmount = Math.floor(Math.random() * (25 - 15 + 1) + 15);
@@ -57,6 +57,10 @@ module.exports = {
     );
 
     let { Xp, Level } = user;
+
+    console.log(
+      `User talking: ${message.author.tag} | XP: ${Xp} | Level: ${Level} And earned ${xpAmount} XP.`
+    );
 
     if (Xp >= Level * 100) {
       cooldown.add(userId);
@@ -88,13 +92,7 @@ module.exports = {
         name: "profile.png",
       });
 
-      const embed = new EmbedBuilder()
-        .setImage("attachment://profile.png")
-        .setColor("Aqua")
-        .setTimestamp();
-
       notificationChannel.send({
-        embeds: [embed],
         files: [attachment],
       });
 
@@ -111,6 +109,13 @@ module.exports = {
 
       setTimeout(() => {
         cooldown.delete(userId);
+      }, 60000);
+    } else {
+      cooldown.add(userId);
+      console.log(`User: ${message.author.tag} | Cooldown activated.`);
+      setTimeout(() => {
+        cooldown.delete(userId);
+        console.log(`User: ${message.author.tag} | Cooldown deactivated.`);
       }, 60000);
     }
   },
