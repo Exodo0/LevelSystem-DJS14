@@ -84,17 +84,33 @@ module.exports = {
         notificationChannel = message.channel;
       }
 
-      const buffer = await profileImage(userId, {
-        customTag: `You level up to: ${Level}!`,
-      });
+      // Check if the bot has permissions to send messages in the channel
+      if (
+        notificationChannel
+          .permissionsFor(client.user)
+          .has(PermissionFlagsBits.SendMessages)
+      ) {
+        const buffer = await profileImage(userId, {
+          customTag: `You level up to: ${Level}!`,
+        });
 
-      const attachment = new AttachmentBuilder(buffer, {
-        name: "profile.png",
-      });
+        const attachment = new AttachmentBuilder(buffer, {
+          name: "profile.png",
+        });
 
-      notificationChannel.send({
-        files: [attachment],
-      });
+        notificationChannel.send({
+          files: [attachment],
+        });
+      } else {
+        const buffer = await profileImage(userId, {
+          customTag: `You level up to: ${Level}!`,
+        });
+
+        message.author.send({
+          content: `You level up to: ${Level}!`,
+          files: [new AttachmentBuilder(buffer, { name: "profile.png" })],
+        });
+      }
 
       await UserLevel.updateOne(
         {
@@ -120,4 +136,3 @@ module.exports = {
     }
   },
 };
-
